@@ -1,0 +1,58 @@
+@use './variables' as vars;
+
+// App 主样式文件
+
+// 全局重置样式
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: vars.$font-family;
+  color: vars.$text-color;
+  background-color: vars.$bg-color;
+  line-height: 1.6;
+}
+
+// 滚动条样式
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+// 响应式样式
+@media (max-width: vars.$mobile) {
+  .header {
+    padding: vars.$spacing-xl vars.$spacing-md !important;
+    
+    h1 {
+      font-size: 2rem !important;
+    }
+    
+    p {
+      font-size: 1rem !important;
+    }
+  }
+  
+  .main {
+    padding: vars.$spacing-md !important;
+  }
+  
+  .example {
+    padding: vars.$spacing-md !important;
+  }
+} 

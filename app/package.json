@@ -1,0 +1,23 @@
+{
+  "name": "@svg-morpheus-vue/app",
+  "version": "1.0.0",
+  "description": "SVG Morpheus Vue documentation and examples",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@svg-morpheus-vue/lib": "workspace:*",
+    "vue": "^3.5.15"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.4",
+    "sass": "^1.89.0",
+    "typescript": "^5.8.3",
+    "vite": "^5.4.19",
+    "vue-tsc": "^2.2.10"
+  }
+}
