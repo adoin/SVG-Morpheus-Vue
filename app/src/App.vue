@@ -32,7 +32,7 @@
             <div class="icon-display large">
               <SvgMorphling 
                 :value="globalIcon" 
-                :duration="600"
+                :duration="750"
                 easing="elastic-in-out"
                 rotation="clock"
                 class="global-icon"

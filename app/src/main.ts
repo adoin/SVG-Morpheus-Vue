@@ -10,29 +10,13 @@ const app = createApp(App)
 // 全局注册 SVG 图标集合
 async function initSvgIcons() {
   try {
-    console.log('🚀 开始初始化 SVG 图标')
-    console.log('🔧 检查 SvgMorphling.registry 方法:', typeof SvgMorphling.registry)
-    
     // 使用 Vite 的 import.meta.glob 加载 assets/svg 文件夹
     const svgModules = (import.meta as any).glob('./assets/svg/*.svg', { 
       query: '?raw', 
       import: 'default' 
     })
     const assetSvgs = await createSvgMapFromFolder(svgModules)
-    
-    console.log('📦 准备调用 SvgMorphling.registry')
     try {
-      console.log('🔧 SvgMorphling.registry 类型检查:', typeof SvgMorphling.registry)
-      console.log('🔧 SvgMorphling 对象:', SvgMorphling)
-      console.log('📊 调用参数预览:', {
-        sourcesLength: 2,
-        assetSvgsKeys: Object.keys(assetSvgs),
-        customAttributes: {
-          viewBox: '0 0 24 24',
-          class: 'global-svg-icons'
-        }
-      })
-      
       await SvgMorphling.registry({
         sources: [
           // 方式1: 从文件夹加载的 SVG（使用辅助函数预处理）
@@ -68,15 +52,11 @@ async function initSvgIcons() {
           class: 'global-svg-icons'
         }
       })
-      console.log('✅ SvgMorphling.registry 调用完成')
     } catch (registryError) {
       console.error('❌ SvgMorphling.registry 调用失败:', registryError)
       throw registryError
     }
     
-    console.log('✅ 全局 SVG 图标注册成功！')
-    console.log('📁 从 assets/svg 加载的图标:', Object.keys(assetSvgs))
-    console.log('📋 所有可用图标:', Object.keys(SvgMorphling.getGlobalSvgMap()))
   } catch (error) {
     console.error('❌ 全局 SVG 图标注册失败:', error)
   }
