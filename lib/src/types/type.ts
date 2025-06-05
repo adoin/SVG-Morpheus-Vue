@@ -3,11 +3,11 @@ export interface MorpheusProps  {
     
 }
 
-export interface SvgMorpheusProps {
+export interface SvgMorphlingProps {
   /** 当前显示的图标名称 */
   value: string
-  /** SVG 图标映射对象或文件夹路径 */
-  svgMap?: Record<string, string> | string
+  /** 直接传入的 SVG 图标映射对象 */
+  svgMap?: Record<string, string>
   /** 动画持续时间 (毫秒) */
   duration?: number
   /** 缓动函数 */
@@ -24,7 +24,7 @@ export interface SvgMorpheusProps {
   defaultIcon?: string
 }
 
-export interface SvgMorpheusEmits {
+export interface SvgMorphlingEmits {
   /** 动画开始时触发 */
   (e: 'animationStart', iconName: string): void
   /** 动画完成时触发 */
@@ -33,7 +33,7 @@ export interface SvgMorpheusEmits {
   (e: 'change', iconName: string): void
 }
 
-export interface SvgMorpheusOptions {
+export interface SvgMorphlingOptions {
   duration?: number
   easing?: string
   rotation?: 'none' | 'clock' | 'counterclock' | 'random'
@@ -41,4 +41,24 @@ export interface SvgMorpheusOptions {
 
 export interface SvgFileMap {
   [iconName: string]: string
+}
+
+/** 全局注册的数据源类型 */
+export type SvgRegistrySource = 
+  | Record<string, string>  // 直接的 SVG 映射
+  | string                  // 文件路径（.svg 结尾）或文件夹路径（/ 结尾）
+
+/** 全局注册配置 */
+export interface SvgRegistryConfig {
+  /** 数据源数组 */
+  sources: SvgRegistrySource[]
+  /** 自定义 SVG 属性 */
+  customAttributes?: Record<string, string>
+}
+
+/** 组件静态方法类型 */
+export interface SvgMorphlingStatic {
+  registry: (config: SvgRegistryConfig) => Promise<void>
+  getGlobalSvgMap: () => SvgFileMap
+  getGlobalSvgBlobUrl: () => string
 }

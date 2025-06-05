@@ -1,8 +1,19 @@
 import { App } from 'vue'
-import SvgMorpheus from './components/SvgMorpheus.vue'
+import SvgMorphling from './components/SvgMorphling.vue'
+import { registry, getGlobalSvgMap, getGlobalSvgBlobUrl, createSvgMapFromFolder } from './store/globalState'
+
+// 为组件添加静态方法
+Object.assign(SvgMorphling, {
+  registry,
+  getGlobalSvgMap,
+  getGlobalSvgBlobUrl
+})
 
 // 导出组件
-export { SvgMorpheus }
+export { SvgMorphling }
+
+// 导出全局状态获取函数和工具函数
+export { getGlobalSvgMap, getGlobalSvgBlobUrl, createSvgMapFromFolder }
 
 // 导出类型
 export * from './types/type'
@@ -13,9 +24,6 @@ export * from './utils/svgLoader'
 // Vue 插件安装函数
 export default {
   install(app: App) {
-    app.component('SvgMorpheus', SvgMorpheus)
+    app.component('SvgMorphling', SvgMorphling)
   }
-}
-
-// 导出样式
-import './styles/index.scss' 
+} 

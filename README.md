@@ -43,22 +43,36 @@ pnpm build:app
 
 ## 📖 使用指南
 
-### 基础用法
+### 模式1：直接传入 SVG 映射
+
+这种方式适合单个组件使用独立的图标集合：
 
 ```vue
 <template>
   <div>
-    <SvgMorpheus :value="currentIcon" :svg-map="iconMap" />
+    <SvgMorphling :value="currentIcon" :svg-map="iconMap" />
     <button @click="switchIcon">切换图标</button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { SvgMorpheus, iconSets } from '@svg-morpheus-vue/lib'
+import { SvgMorphling } from '@svg-morpheus-vue/lib'
 
 const currentIcon = ref('circle')
-const iconMap = iconSets.basic
+
+// 直接定义 SVG 映射
+const iconMap = {
+  circle: `<svg viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" fill="currentColor"/>
+  </svg>`,
+  square: `<svg viewBox="0 0 24 24">
+    <rect x="2" y="2" width="20" height="20" fill="currentColor"/>
+  </svg>`,
+  triangle: `<svg viewBox="0 0 24 24">
+    <polygon points="12,2 22,20 2,20" fill="currentColor"/>
+  </svg>`
+}
 
 const switchIcon = () => {
   const icons = Object.keys(iconMap)
@@ -69,70 +83,150 @@ const switchIcon = () => {
 </script>
 ```
 
-### 高级配置
+### 模式2：全局注册 SVG 集合
+
+这种方式适合在应用中全局共享图标集合：
+
+#### 全局注册
+
+在应用入口处注册全局图标集合：
+
+```typescript
+// main.ts
+import { createApp } from 'vue'
+import { SvgMorphling, createSvgMapFromFolder } from '@svg-morpheus-vue/lib'
+import App from './App.vue'
+
+async function initSvgIcons() {
+  // 使用 Vite 的 import.meta.glob 加载文件夹
+  const svgModules = (import.meta as any).glob('./assets/svg/*.svg', { 
+    query: '?raw', 
+    import: 'default' 
+  })
+  const assetSvgs = await createSvgMapFromFolder(svgModules)
+  
+  await SvgMorphling.registry({
+    sources: [
+      // 方式1: 从文件夹加载（使用辅助函数预处理）
+      assetSvgs,
+      
+      // 方式2: 单个 SVG 文件（文件名自动作为 key）
+      './assets/icons/logo.svg',
+      
+      // 方式3: 直接传入 SVG 映射对象
+      {
+        home: `<svg viewBox="0 0 24 24">
+          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill="currentColor"/>
+        </svg>`,
+        user: `<svg viewBox="0 0 24 24">
+          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/>
+        </svg>`
+      }
+    ],
+    customAttributes: {
+      viewBox: '0 0 24 24',
+      class: 'global-icons'
+    }
+  })
+}
+
+// 初始化图标后挂载应用
+initSvgIcons().then(() => {
+  const app = createApp(App)
+  app.mount('#app')
+})
+```
+
+**数据源类型说明：**
+
+1. **文件夹加载**（推荐）
+   - 使用 `createSvgMapFromFolder` 辅助函数
+   - 先用 `import.meta.glob` 加载，再传递给辅助函数处理
+   - 文件名（去掉扩展名）自动作为图标 key
+
+2. **单个文件路径**（以 `.svg` 结尾）
+   - 示例：`'./assets/logo.svg'`
+   - 文件名（去掉扩展名）作为图标 key
+
+3. **SVG 映射对象**
+   - 示例：`{ iconName: 'svgContent', ... }`
+   - 直接定义图标名称和 SVG 内容
+
+**为什么需要辅助函数？**
+
+由于 Vite 的 `import.meta.glob` 要求使用字面量字符串，不能动态构建路径。所以需要在调用 `registry` 前使用辅助函数预处理文件夹内容。
+
+**文件夹结构示例：**
+```
+src/
+├── assets/
+│   └── svg/
+│       ├── home.svg     → 注册为 'home'
+│       ├── user.svg     → 注册为 'user'
+│       ├── settings.svg → 注册为 'settings'
+│       └── search.svg   → 注册为 'search'
+├── main.ts
+└── App.vue
+```
+
+#### 使用全局图标
+
+注册后，所有组件都可以直接使用全局图标，无需传入 `svg-map`：
 
 ```vue
 <template>
-  <SvgMorpheus 
-    :value="icon"
-    :svg-map="customIcons"
-    :duration="800"
-    easing="elastic-in-out"
-    rotation="clock"
-    :custom-attributes="{ viewBox: '0 0 32 32' }"
-    class="my-icon"
-    @animation-start="onStart"
-    @animation-end="onEnd"
-  />
+  <div>
+    <!-- 直接使用全局注册的图标 -->
+    <SvgMorphling :value="currentIcon" />
+    
+    <div class="icon-controls">
+      <button @click="currentIcon = 'home'">首页</button>
+      <button @click="currentIcon = 'user'">用户</button>
+      <button @click="currentIcon = 'settings'">设置</button>
+      <button @click="currentIcon = 'search'">搜索</button>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { SvgMorpheus } from '@svg-morpheus-vue/lib'
+import { SvgMorphling } from '@svg-morpheus-vue/lib'
 
-const icon = ref('play')
-
-const customIcons = {
-  play: \`<svg viewBox="0 0 24 24">
-    <polygon points="5,3 19,12 5,21" fill="currentColor"/>
-  </svg>\`,
-  pause: \`<svg viewBox="0 0 24 24">
-    <rect x="6" y="4" width="4" height="16" fill="currentColor"/>
-    <rect x="14" y="4" width="4" height="16" fill="currentColor"/>
-  </svg>\`
-}
-
-const onStart = (iconName: string) => {
-  console.log('动画开始:', iconName)
-}
-
-const onEnd = (iconName: string) => {
-  console.log('动画结束:', iconName)
-}
+const currentIcon = ref('home')
 </script>
 ```
 
-### 使用文件路径
+### 混合使用
+
+也可以在同一个应用中混合使用两种模式：
 
 ```vue
 <template>
-  <SvgMorpheus 
-    :value="icon"
-    :svg-map="fileBasedIcons"
-  />
+  <div>
+    <!-- 使用全局图标 -->
+    <SvgMorphling :value="globalIcon" />
+    
+    <!-- 使用局部图标 -->
+    <SvgMorphling :value="localIcon" :svg-map="localIcons" />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { SvgMorpheus } from '@svg-morpheus-vue/lib'
+import { SvgMorphling } from '@svg-morpheus-vue/lib'
 
-const icon = ref('home')
+const globalIcon = ref('home')  // 使用全局注册的图标
+const localIcon = ref('play')   // 使用局部定义的图标
 
-// 基于文件路径的图标映射
-const fileBasedIcons = {
-  home: '/icons/home.svg',
-  user: '/icons/user.svg',
-  settings: '/icons/settings.svg'
+// 局部图标映射（优先级高于全局）
+const localIcons = {
+  play: `<svg viewBox="0 0 24 24">
+    <polygon points="5,3 19,12 5,21" fill="currentColor"/>
+  </svg>`,
+  pause: `<svg viewBox="0 0 24 24">
+    <rect x="6" y="4" width="4" height="16" fill="currentColor"/>
+    <rect x="14" y="4" width="4" height="16" fill="currentColor"/>
+  </svg>`
 }
 </script>
 ```
@@ -144,7 +238,7 @@ const fileBasedIcons = {
 | 属性 | 类型 | 默认值 | 描述 |
 |------|------|--------|------|
 | `value` | `string` | `''` | 当前显示的图标名称 |
-| `svgMap` | `Record<string, string> \| string` | `undefined` | SVG 图标映射或文件夹路径 |
+| `svgMap` | `Record<string, string>` | `undefined` | 直接传入的 SVG 图标映射对象 |
 | `duration` | `number` | `600` | 动画持续时间（毫秒） |
 | `easing` | `string` | `'quad-in-out'` | 缓动函数 |
 | `rotation` | `'none' \| 'clock' \| 'counterclock' \| 'random'` | `'none'` | 旋转方向 |
@@ -161,16 +255,76 @@ const fileBasedIcons = {
 | `animation-end` | `(iconName: string)` | 动画结束时触发 |
 | `change` | `(iconName: string)` | 图标切换时触发 |
 
-### 内置图标集
+### 静态方法
+
+#### SvgMorphling.registry(config)
+
+全局注册 SVG 图标集合。
+
+**参数：**
+
+- `config: SvgRegistryConfig` - 注册配置对象
 
 ```typescript
+interface SvgRegistryConfig {
+  sources: SvgRegistrySource[]        // 数据源数组
+  customAttributes?: Record<string, string>  // 自定义 SVG 属性
+}
+
+type SvgRegistrySource = 
+  | Record<string, string>  // 直接的 SVG 映射
+  | string                  // 文件路径（.svg 结尾）或文件夹路径（/ 结尾）
+```
+
+**示例：**
+
+```typescript
+await SvgMorphling.registry({
+  sources: [
+    // SVG 映射对象
+    { home: '<svg>...</svg>', user: '<svg>...</svg>' },
+    // 单个文件
+    '/icons/settings.svg',
+    // 文件夹（Vite 环境）
+    '/icons/arrows/'
+  ],
+  customAttributes: {
+    viewBox: '0 0 24 24',
+    class: 'global-icons'
+  }
+})
+```
+
+#### SvgMorphling.getGlobalSvgMap()
+
+获取当前全局注册的 SVG 映射对象。
+
+**返回值：** `Record<string, string>`
+
+#### SvgMorphling.getGlobalSvgBlobUrl()
+
+获取当前全局 SVG 集合的 Blob URL。
+
+**返回值：** `string`
+
+### 内置图标集
+
+> **注意：** 从 v2.0 开始，内置图标集已移除。请使用全局注册功能或直接传入 SVG 映射。
+
+```typescript
+// 旧版本（已废弃）
 import { iconSets } from '@svg-morpheus-vue/lib'
 
-// 基础图标
-iconSets.basic // { circle, square, triangle, star, heart }
-
-// 箭头图标
-iconSets.arrows // { arrow-up, arrow-down, arrow-left, arrow-right }
+// 新版本（推荐）
+await SvgMorphling.registry({
+  sources: [
+    {
+      circle: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/></svg>',
+      square: '<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" fill="currentColor"/></svg>',
+      // ...更多图标
+    }
+  ]
+})
 ```
 
 ### 缓动函数选项
@@ -203,13 +357,13 @@ iconSets.arrows // { arrow-up, arrow-down, arrow-left, arrow-right }
 ```vue
 <template>
   <!-- 小尺寸 (16x16) -->
-  <SvgMorpheus :value="icon" class="svg-morpheus-small" />
+  <SvgMorphling :value="icon" class="svg-morpheus-small" />
   
   <!-- 默认尺寸 (24x24) -->
-  <SvgMorpheus :value="icon" />
+  <SvgMorphling :value="icon" />
   
   <!-- 大尺寸 (48x48) -->
-  <SvgMorpheus :value="icon" class="svg-morpheus-large" />
+  <SvgMorphling :value="icon" class="svg-morpheus-large" />
 </template>
 ```
 
@@ -218,16 +372,16 @@ iconSets.arrows // { arrow-up, arrow-down, arrow-left, arrow-right }
 ```vue
 <template>
   <!-- 主色主题 -->
-  <SvgMorpheus :value="icon" class="svg-morpheus-primary" />
+  <SvgMorphling :value="icon" class="svg-morpheus-primary" />
   
   <!-- 成功主题 -->
-  <SvgMorpheus :value="icon" class="svg-morpheus-success" />
+  <SvgMorphling :value="icon" class="svg-morpheus-success" />
   
   <!-- 警告主题 -->
-  <SvgMorpheus :value="icon" class="svg-morpheus-warning" />
+  <SvgMorphling :value="icon" class="svg-morpheus-warning" />
   
   <!-- 危险主题 -->
-  <SvgMorpheus :value="icon" class="svg-morpheus-danger" />
+  <SvgMorphling :value="icon" class="svg-morpheus-danger" />
 </template>
 ```
 
