@@ -9,7 +9,7 @@ export default defineConfig({
     }
   },
   optimizeDeps: {
-    include: ['@svg-morpheus-vue/lib']
+    include: ['svg-morpheus-vue']
   },
   server: {
     port: 3000,

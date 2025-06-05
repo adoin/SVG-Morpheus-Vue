@@ -16,8 +16,8 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@svg-morpheus-vue/lib": ["./lib/src/index.ts"],
-      "@svg-morpheus-vue/lib/*": ["./lib/src/*"]
+      "svg-morpheus-vue": ["./lib/src/index.ts"],
+      "svg-morpheus-vue/*": ["./lib/src/*"]
     }
   },
   "include": [

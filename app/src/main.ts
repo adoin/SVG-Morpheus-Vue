@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import SvgMorphlingVue, { SvgMorphling, createSvgMapFromFolder } from '@svg-morpheus-vue/lib'
+import SvgMorphlingVue, { SvgMorphling, createSvgMapFromFolder } from 'svg-morpheus-vue'
 
 // 引入样式
 import './styles/main.scss'

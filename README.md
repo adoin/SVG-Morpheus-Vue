@@ -18,7 +18,7 @@
 使用 pnpm（推荐）：
 
 ```bash
-pnpm install
+pnpm add svg-morpheus-vue
 ```
 
 ### 开发
@@ -57,7 +57,7 @@ pnpm build:app
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { SvgMorphling } from '@svg-morpheus-vue/lib'
+import { SvgMorphling } from 'svg-morpheus-vue'
 
 const currentIcon = ref('circle')
 
@@ -94,7 +94,7 @@ const switchIcon = () => {
 ```typescript
 // main.ts
 import { createApp } from 'vue'
-import { SvgMorphling, createSvgMapFromFolder } from '@svg-morpheus-vue/lib'
+import { SvgMorphling, createSvgMapFromFolder } from 'svg-morpheus-vue'
 import App from './App.vue'
 
 async function initSvgIcons() {
@@ -172,7 +172,7 @@ const currentIcon = ref('home')
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { SvgMorphling } from '@svg-morpheus-vue/lib'
+import { SvgMorphling } from 'svg-morpheus-vue'
 
 const globalIcon = ref('home')  // 使用全局注册的图标
 const localIcon = ref('play')   // 使用局部定义的图标
@@ -272,7 +272,7 @@ await SvgMorphling.registry({
 
 ```typescript
 // 旧版本（已废弃）
-import { iconSets } from '@svg-morpheus-vue/lib'
+import { iconSets } from 'svg-morpheus-vue'
 
 // 新版本（推荐）
 await SvgMorphling.registry({
@@ -351,7 +351,7 @@ await SvgMorphling.registry({
 批量加载 SVG 文件：
 
 ```typescript
-import { loadSvgFiles } from '@svg-morpheus-vue/lib'
+import { loadSvgFiles } from 'svg-morpheus-vue'
 
 const fileMap = {
   home: '/icons/home.svg',
@@ -366,7 +366,7 @@ const svgMap = await loadSvgFiles(fileMap)
 从文件夹路径创建文件映射：
 
 ```typescript
-import { createSvgFileMap } from '@svg-morpheus-vue/lib'
+import { createSvgFileMap } from 'svg-morpheus-vue'
 
 const fileMap = createSvgFileMap('/icons', [
   'home.svg',

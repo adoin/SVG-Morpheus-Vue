@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@svg-morpheus-vue/lib": "workspace:*",
+    "svg-morpheus-vue": "workspace:*",
     "vue": "^3.5.15"
   },
   "devDependencies": {

@@ -308,7 +308,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 // 只导入用于调用静态方法，组件已在 main.ts 中全局注册
-import { SvgMorphling } from '@svg-morpheus-vue/lib'
+import { SvgMorphling } from 'svg-morpheus-vue'
 
 // 响应式数据
 const currentIcon = ref('circle')

@@ -41,7 +41,7 @@ importers:
 
   app:
     dependencies:
-      '@svg-morpheus-vue/lib':
+      svg-morpheus-vue:
         specifier: workspace:*
         version: link:../lib
       vue:

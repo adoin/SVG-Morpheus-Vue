@@ -1,5 +1,5 @@
 {
-  "name": "@svg-morpheus-vue/lib",
+  "name": "svg-morpheus-vue",
   "version": "1.0.0",
   "description": "SVG Morpheus Vue component library",
   "type": "module",
