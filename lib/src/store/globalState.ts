@@ -58,14 +58,7 @@ const processSingleSource = async (source: SvgRegistrySource): Promise<SvgFileMa
       } catch (error) {
         console.warn(`❌ 加载 SVG 文件失败: ${source}`, error)
       }
-    } else if (source.endsWith('/')) {
-      // 文件夹路径 - 提示用户使用辅助函数
-      console.warn(`❌ 文件夹路径 "${source}" 需要在调用 registry 前预处理`)
-      console.warn('💡 请使用 createSvgMapFromFolder 辅助函数：')
-      console.warn(`   const svgMap = await createSvgMapFromFolder('${source}')`)
-      console.warn(`   await SvgMorphling.registry({ sources: [svgMap, ...] })`)
-      console.warn('   或者直接在 main.ts 中使用 import.meta.glob')
-    } else {
+    }else {
       console.warn(`❌ 不支持的路径格式: ${source}`)
       console.warn('💡 支持的格式：')
       console.warn('   - 文件路径：以 ".svg" 结尾，如 "./assets/logo.svg"')
