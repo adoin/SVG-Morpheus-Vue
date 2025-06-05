@@ -87,9 +87,9 @@ const switchIcon = () => {
 
 这种方式适合在应用中全局共享图标集合：
 
-#### 全局注册
+#### 推荐用法：文件夹注册（Vite 环境）
 
-在应用入口处注册全局图标集合：
+> ⚠️ 注意：由于 Vite 的 import.meta.glob 只能用静态字符串，组件库无法自动扫描文件夹。请在 main.ts 里用如下方式注册：
 
 ```typescript
 // main.ts
@@ -98,29 +98,18 @@ import { SvgMorphling, createSvgMapFromFolder } from '@svg-morpheus-vue/lib'
 import App from './App.vue'
 
 async function initSvgIcons() {
-  // 使用 Vite 的 import.meta.glob 加载文件夹
-  const svgModules = (import.meta as any).glob('./assets/svg/*.svg', { 
-    query: '?raw', 
-    import: 'default' 
-  })
+  // 用 Vite 的 import.meta.glob 静态收集 SVG 文件
+  const svgModules = import.meta.glob('./assets/svg/*.svg', { as: 'raw' })
   const assetSvgs = await createSvgMapFromFolder(svgModules)
   
   await SvgMorphling.registry({
     sources: [
-      // 方式1: 从文件夹加载（使用辅助函数预处理）
+      // 推荐：用辅助函数处理后的 svgMap
       assetSvgs,
-      
-      // 方式2: 单个 SVG 文件（文件名自动作为 key）
+      // 也可混合单个文件/对象
       './assets/icons/logo.svg',
-      
-      // 方式3: 直接传入 SVG 映射对象
       {
-        home: `<svg viewBox="0 0 24 24">
-          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill="currentColor"/>
-        </svg>`,
-        user: `<svg viewBox="0 0 24 24">
-          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/>
-        </svg>`
+        home: `<svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill="currentColor"/></svg>`
       }
     ],
     customAttributes: {
@@ -130,31 +119,16 @@ async function initSvgIcons() {
   })
 }
 
-// 初始化图标后挂载应用
 initSvgIcons().then(() => {
   const app = createApp(App)
   app.mount('#app')
 })
 ```
 
-**数据源类型说明：**
-
-1. **文件夹加载**（推荐）
-   - 使用 `createSvgMapFromFolder` 辅助函数
-   - 先用 `import.meta.glob` 加载，再传递给辅助函数处理
-   - 文件名（去掉扩展名）自动作为图标 key
-
-2. **单个文件路径**（以 `.svg` 结尾）
-   - 示例：`'./assets/logo.svg'`
-   - 文件名（去掉扩展名）作为图标 key
-
-3. **SVG 映射对象**
-   - 示例：`{ iconName: 'svgContent', ... }`
-   - 直接定义图标名称和 SVG 内容
-
-**为什么需要辅助函数？**
-
-由于 Vite 的 `import.meta.glob` 要求使用字面量字符串，不能动态构建路径。所以需要在调用 `registry` 前使用辅助函数预处理文件夹内容。
+**为什么要这样？**
+- Vite 的 import.meta.glob 只能用静态字符串，不能动态传参。
+- 组件库无法自动扫描用户项目的本地文件夹。
+- 推荐用法是：用户在 main.ts 里用 import.meta.glob + createSvgMapFromFolder，传递 svgMap 给 registry。
 
 **文件夹结构示例：**
 ```
@@ -163,35 +137,20 @@ src/
 │   └── svg/
 │       ├── home.svg     → 注册为 'home'
 │       ├── user.svg     → 注册为 'user'
-│       ├── settings.svg → 注册为 'settings'
-│       └── search.svg   → 注册为 'search'
-├── main.ts
-└── App.vue
+│       └── ...
 ```
 
 #### 使用全局图标
 
-注册后，所有组件都可以直接使用全局图标，无需传入 `svg-map`：
+注册后，所有组件都可以直接使用全局图标，无需传入 svg-map：
 
 ```vue
 <template>
-  <div>
-    <!-- 直接使用全局注册的图标 -->
-    <SvgMorphling :value="currentIcon" />
-    
-    <div class="icon-controls">
-      <button @click="currentIcon = 'home'">首页</button>
-      <button @click="currentIcon = 'user'">用户</button>
-      <button @click="currentIcon = 'settings'">设置</button>
-      <button @click="currentIcon = 'search'">搜索</button>
-    </div>
-  </div>
+  <SvgMorphling :value="currentIcon" />
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { SvgMorphling } from '@svg-morpheus-vue/lib'
-
 const currentIcon = ref('home')
 </script>
 ```
